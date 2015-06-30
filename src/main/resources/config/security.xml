@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:security="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="
+http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+http://www.springframework.org/schema/security
+http://www.springframework.org/schema/security/spring-security-3.2.xsd">
+
+	<security:http use-expressions="true" auto-config="false"
+		entry-point-ref="CustomAuthenticationEntryPoint">
+		<security:custom-filter ref="tokenProcessingFilter"
+			position="FORM_LOGIN_FILTER" />
+
+
+		<security:intercept-url pattern="/tube/**"
+			access="hasAnyRole('ROLE_TUBE','ROLE_ADMIN')" />
+
+		<security:intercept-url pattern="/weather/**"
+			access="hasAnyRole('ROLE_WEATHER','ROLE_ADMIN')" />
+		
+
+		<security:access-denied-handler
+			error-page="/403" />
+	</security:http>
+
+	<security:authentication-manager alias="authenticationManager">
+		<security:authentication-provider
+			ref="jwtAuthenticationProvider"></security:authentication-provider>
+	</security:authentication-manager>
+
+	<bean id="CustomAuthenticationEntryPoint"
+		class="com.jwtexample.auth.entrypoint.CustomAuthenticationEntryPoint" />
+
+	<bean id="tokenProcessingFilter" class="com.jwtexample.auth.filter.TokenProcessingFilter">
+		<constructor-arg ref="authenticationManager" />
+	</bean>
+</beans>
